@@ -66,6 +66,7 @@
   lineinfile:
     dest: "{{ clamav_config_dir }}/{{ clamav_config_file }}"
     line: "{{ item.line }}"
+    regexp: "{{ item.regexp | default(omit) }}"
     create: yes
     state: "{{ item.state | default('present') }}"
     mode: "0640"

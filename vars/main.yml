@@ -79,6 +79,10 @@ _clamav_services:
     - clamav-freshclam
   RedHat:
     - clamd@scan
+  Rocky:
+    - clamd@scan
+    - clamav-clamonacc
+    - clamav-freshclam
   Suse:
     - clamd
 
@@ -110,6 +114,14 @@ _clamav_requirements:
     - policycoreutils-python
     - policycoreutils
   CentOS-8:
+    - checkpolicy
+    - python3-policycoreutils
+    - policycoreutils
+  Rocky-8:
+    - checkpolicy
+    - python3-policycoreutils
+    - policycoreutils
+  Rocky-9:
     - checkpolicy
     - python3-policycoreutils
     - policycoreutils

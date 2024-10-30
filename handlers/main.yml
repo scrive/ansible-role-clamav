@@ -29,8 +29,6 @@
     cmd: freshclam
   args:
     creates: /var/lib/clamav/main.cvd
-  async: 900
-  poll: 0
   register: updatevirusdefinitions
 
 - name: Create selinux mod for clamav

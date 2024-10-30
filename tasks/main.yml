@@ -1,81 +1,99 @@
 ---
 # tasks file for clamav
 
-- name: include assert.yml
-  import_tasks: assert.yml
-  run_once: yes
+- name: Import assert.yml
+  ansible.builtin.import_tasks:
+    file: assert.yml
+  run_once: true
   delegate_to: localhost
 
-- name: install clamav software
-  package:
+- name: Install clamav software
+  ansible.builtin.package:
     name: "{{ clamav_packages }}"
     state: present
   notify:
-    - ensure logfiles exists
-    - stop clamav
-    - update virus definitions
+    - Ensure logfiles exists
+    - Stop clamav
+    - Update virus definitions
 
-- name: manage selinux settings
+- name: Manage selinux settings
+  when:
+    - ansible_selinux is defined
+    - ansible_selinux.status == "enabled"
   block:
-    - name: allowing system virus scanning
-      seboolean:
+    - name: Allowing system virus scanning
+      ansible.posix.seboolean:
         name: antivirus_can_scan_system
-        state: yes
-        persistent: yes
+        state: true
+        persistent: true
 
-    - name: allowing jit
-      seboolean:
+    - name: Allowing jit
+      ansible.posix.seboolean:
         name: clamd_use_jit
-        state: yes
-        persistent: yes
+        state: true
+        persistent: true
 
-    - name: install required selinux software
-      package:
+    - name: Install required selinux software
+      ansible.builtin.package:
         name: "{{ clamav_requirements }}"
         state: present
 
-    - name: place selinux type enforcement
-      copy:
+    - name: Place selinux type enforcement
+      ansible.builtin.copy:
         src: my-clamd.te
         dest: /etc/my-clamd.te
         mode: "0640"
       notify:
-        - create selinux mod for clamav
-        - create selinux pp for clamav
-        - load selinux pp for clamav
-  when:
-    - ansible_selinux is defined
-    - ansible_selinux.status == "enabled"
+        - Create selinux mod for clamav
+        - Create selinux pp for clamav
+        - Load selinux pp for clamav
 
-- name: place freshclam.conf
-  template:
+- name: Place freshclam.conf
+  ansible.builtin.template:
     src: freshclam.conf.j2
     dest: "{{ clamav_config_dir }}/freshclam.conf"
     mode: "{{ freshclam_mode }}"
 
-- name: create database directory
-  file:
+- name: Create pid directory
+  ansible.builtin.file:
+    path: /run/clamav/
+    state: directory
+    owner: "{{ clamav_owner }}"
+    group: "{{ clamav_group }}"
+    mode: "0755"
+
+- name: Create database directory
+  ansible.builtin.file:
     path: "{{ clamav_database_directory }}"
     state: directory
     mode: "0755"
 
-- name: flush handlers
-  meta: flush_handlers
+- name: Download signatures
+  ansible.builtin.get_url:
+    url: "{{ freshclam_private_mirrors[0] }}/{{ item }}"
+    dest: "{{ clamav_database_directory }}/{{ item }}"
+    mode: "0644"
+  loop:
+    - main.cvd
+    - daily.cld
 
-- name: configure clamav software
-  lineinfile:
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Configure clamav software
+  ansible.builtin.lineinfile:
     dest: "{{ clamav_config_dir }}/{{ clamav_config_file }}"
     line: "{{ item.line }}"
     regexp: "{{ item.regexp | default(omit) }}"
-    create: yes
+    create: true
     state: "{{ item.state | default('present') }}"
     mode: "0640"
   loop: "{{ clamav_configuration }}"
   notify:
-    - restart clamav
+    - Restart clamav
 
-- name: check update virus definitions
-  async_status:
+- name: Check update virus definitions
+  ansible.builtin.async_status:
     jid: "{{ updatevirusdefinitions.ansible_job_id }}"
   register: clamav_job_result
   until:
@@ -85,9 +103,9 @@
   when:
     - updatevirusdefinitions is defined
 
-- name: start and enable clamav service
-  service:
+- name: Start and enable clamav service
+  ansible.builtin.service:
     name: "{{ item }}"
     state: started
-    enabled: yes
+    enabled: true
   loop: "{{ clamav_services }}"

@@ -1,16 +1,14 @@
 ---
 # handlers file for clamav
 
-- name: restart clamav
-  service:
+- name: Restart clamav
+  ansible.builtin.service:
     name: "{{ item }}"
     state: restarted
   loop: "{{ clamav_services }}"
-  when:
-    - not ansible_check_mode | bool
 
-- name: ensure logfiles exists
-  file:
+- name: Ensure logfiles exists
+  ansible.builtin.file:
     path: "{{ item }}"
     state: touch
     owner: "{{ clamav_owner }}"
@@ -20,29 +18,32 @@
     - /var/log/clamd.scan
     - "{{ clamav_freshclam_log_dir }}/freshclam.log"
 
-- name: stop clamav
-  service:
+- name: Stop clamav
+  ansible.builtin.service:
     name: "{{ item }}"
     state: stopped
   loop: "{{ clamav_services }}"
-  when:
-    - not ansible_check_mode | bool
 
-- name: update virus definitions
-  command: freshclam
+- name: Update virus definitions
+  ansible.builtin.command:
+    cmd: freshclam
   args:
     creates: /var/lib/clamav/main.cvd
   async: 900
   poll: 0
   register: updatevirusdefinitions
-  when:
-    - not ansible_check_mode | bool
 
-- name: create selinux mod for clamav
-  command: checkmodule -M -m -o /etc/my-clamd.mod /etc/my-clamd.te
+- name: Create selinux mod for clamav
+  ansible.builtin.command:
+    cmd: checkmodule -M -m -o /etc/my-clamd.mod /etc/my-clamd.te
+    creates: /etc/my-clamd.mod
 
-- name: create selinux pp for clamav
-  command: semodule_package -o /etc/my-clamd.pp -m /etc/my-clamd.mod
+- name: Create selinux pp for clamav
+  ansible.builtin.command:
+    cmd: semodule_package -o /etc/my-clamd.pp -m /etc/my-clamd.mod
+    creates: /etc/my-clamd.pp
 
-- name: load selinux pp for clamav
-  command: semodule -i /etc/my-clamd.pp
+- name: Load selinux pp for clamav
+  ansible.builtin.command:
+    cmd: semodule -i /etc/my-clamd.pp
+  changed_when: true

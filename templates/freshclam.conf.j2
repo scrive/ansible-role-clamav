@@ -69,8 +69,8 @@ DatabaseOwner {{ clamav_owner }}
 # You can use db.XY.ipv6.clamav.net for IPv6 connections.
 DatabaseMirror database.clamav.net
 
-# database.clamav.net is a round-robin record which points to our most 
-# reliable mirrors. It's used as a fall back in case db.XY.clamav.net is 
+# database.clamav.net is a round-robin record which points to our most
+# reliable mirrors. It's used as a fall back in case db.XY.clamav.net is
 # not working. DO NOT TOUCH the following line unless you know what you
 # are doing.
 DatabaseMirror database.clamav.net
@@ -108,6 +108,11 @@ DatabaseMirror database.clamav.net
 # Default: disabled
 #PrivateMirror mirror1.mynetwork.com
 #PrivateMirror mirror2.mynetwork.com
+{% if freshclam_private_mirrors is defined %}
+{% for mirror in freshclam_private_mirrors %}
+PrivateMirror {{ mirror }}
+{% endfor %}
+{% endif %}
 
 # Number of database checks per day.
 # Default: 12 (every two hours)
@@ -191,7 +196,7 @@ NotifyClamd /etc/clamav/clamd.conf
 #Bytecode yes
 
 # Download an additional 3rd party signature database distributed through
-# the ClamAV mirrors. 
+# the ClamAV mirrors.
 # This option can be used multiple times.
 #ExtraDatabase dbname1
 #ExtraDatabase dbname2

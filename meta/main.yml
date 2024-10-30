@@ -1,11 +1,11 @@
 ---
 galaxy_info:
-  author: Robert de Bock
+  author: robertdebock
   role_name: clamav
   description: Install and configure clamav on your system.
   license: Apache-2.0
   company: none
-  min_ansible_version: "2.10"
+  min_ansible_version: "2.12"
 
   platforms:
     - name: Alpine
@@ -16,22 +16,16 @@ galaxy_info:
         - Candidate
     - name: EL
       versions:
-        - 7
-        - 8
+        - "9"
     - name: Debian
       versions:
-        - buster
-        - bullseye
-    - name: Fedora
-      versions:
         - all
-    - name: OpenSUSE
+    - name: Fedora
       versions:
         - all
     - name: Ubuntu
       versions:
-        - focal
-        - bionic
+        - all
 
   galaxy_tags:
     - clamav

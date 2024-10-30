@@ -2,41 +2,45 @@
 # vars file for clamav
 
 _clamav_packages:
-  Amazon-2018:
-    - clamav-server
-    - clamav-scanner
-    - clamav-update
-  Amazon-2:
-    - clamd
-    - clamav
-    - clamav-update
   Alpine:
     - clamav-daemon
-  CentOS:
+  Amazon-2018:
+    - clamav-scanner
+    - clamav-server
+    - clamav-update
+  Amazon-2023:
     - clamav
     - clamav-update
+    - clamd
+  CentOS:
+    - clamav
     - clamav-scanner-systemd
+    - clamav-update
+  Debian:
+    - clamav
+    - clamav-daemon
+  Fedora:
+    - clamav
+    - clamd
   RedHat:
     - clamav
     - clamav-scanner
     - clamav-scanner-systemd
     - clamav-update
-  Fedora:
+  Rocky:
     - clamav
+    - clamav-update
     - clamd
-  Debian:
-    - clamav
-    - clamav-daemon
   Suse:
     - clamav
 
-clamav_packages: "{{ _clamav_packages[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_clamav_packages[ansible_distribution] | default(_clamav_packages[ansible_os_family])) }}"
+clamav_packages: "{{ _clamav_packages[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_clamav_packages[ansible_distribution] | default(_clamav_packages[ansible_os_family] )) }}"
 
 _clamav_config_dir:
   default: /etc/clamd.d
   Alpine: /etc/clamav
-  RedHat: /etc/clamd.d
   Debian: /etc/clamav
+  RedHat: /etc/clamd.d
   Suse: /etc
 
 clamav_config_dir: "{{ _clamav_config_dir[ansible_os_family] }}"
@@ -44,7 +48,6 @@ clamav_config_dir: "{{ _clamav_config_dir[ansible_os_family] }}"
 _clamav_config_file:
   Alpine: clamd.conf
   RedHat: scan.conf
-  CentOS: scan.conf
   Debian: clamd.conf
   Suse: clamd.conf
 
@@ -67,8 +70,6 @@ _clamav_services:
     - clamd.scan
   Amazon-Candidate:
     - clamd@scan
-  RedHat:
-    - clamd@scan
   CentOS:
     - clamd@scan
     - clamav-clamonacc
@@ -76,30 +77,32 @@ _clamav_services:
   Debian:
     - clamav-daemon
     - clamav-freshclam
+  RedHat:
+    - clamd@scan
   Suse:
     - clamd
 
-clamav_services: "{{ _clamav_services[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_clamav_services[ansible_distribution] | default(_clamav_services[ansible_os_family])) }}"
+clamav_services: "{{ _clamav_services[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_clamav_services[ansible_distribution] | default(_clamav_services[ansible_os_family] )) }}"
 
 _clamav_owner:
   Alpine: clamav
+  CentOS: clamupdate
   Debian: clamav
   RedHat: clamscan
-  CentOS: clamupdate
   Suse: vscan
 
 clamav_owner: "{{ _clamav_owner[ansible_distribution] | default(_clamav_owner[ansible_os_family]) }}"
 
 _clamav_group:
   Alpine: clamav
+  CentOS: clamupdate
   Debian: clamav
   RedHat: clamscan
-  CentOS: clamupdate
   Suse: vscan
 
 clamav_group: "{{ _clamav_group[ansible_distribution] | default(_clamav_group[ansible_os_family]) }}"
 
-clamav_requirements: "{{ _clamav_requirements[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_clamav_requirements[ansible_distribution] | default(_clamav_requirements[ansible_os_family])) | default(_clamav_requirements['default']) }}"
+clamav_requirements: "{{ _clamav_requirements[ansible_distribution ~ '-' ~ ansible_distribution_major_version] | default(_clamav_requirements[ansible_distribution] | default(_clamav_requirements[ansible_os_family] )) | default(_clamav_requirements['default'] ) }}"
 
 _clamav_requirements:
   default:
@@ -113,9 +116,9 @@ _clamav_requirements:
 
 _freshclam_mode:
   Alpine: "0640"
+  CentOS: "0640"
   Debian: "0444"
   RedHat: "0640"
-  CentOS: "0640"
   Suse: "0640"
 
 freshclam_mode: "{{ _freshclam_mode[ansible_distribution] | default(_freshclam_mode[ansible_os_family]) }}"

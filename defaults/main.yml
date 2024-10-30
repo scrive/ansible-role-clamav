@@ -2,8 +2,8 @@
 # defaults file for clamav
 
 # SELinux has to be configured to allow scanning. Set clamav_can_scan_system to
-# either "yes" or "no". Only has effect on systems that support SELinux.
-clamav_can_scan_system: yes
+# either "true" or "false". Only has effect on systems that support SELinux.
+clamav_can_scan_system: true
 
 # Configure any parameter using "regexp" and "line". The parameter "regexp"
 # contains the line that needs to be replaced. The replacement is stored in
@@ -14,3 +14,10 @@ clamav_configuration:
   - line: "TCPSocket 10025"
   - line: "TCPAddr 127.0.0.1"
   - line: "LogFile /var/log/clamd.scan"
+
+# If you have local clamav mirrors (as recommended by ClamAV),
+# you will also need to define a list variable with your mirrors to add,
+# as the following example indicates:
+# freshclam_private_mirrors:
+#   - mirror1.mynetwork.com
+#   - mirror2.mynetwork.com

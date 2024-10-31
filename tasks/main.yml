@@ -93,17 +93,6 @@
   notify:
     - Restart clamav
 
-- name: Check update virus definitions
-  ansible.builtin.async_status:
-    jid: "{{ updatevirusdefinitions.ansible_job_id }}"
-  register: clamav_job_result
-  until:
-    - clamav_job_result.finished
-  retries: 15
-  delay: 60
-  when:
-    - updatevirusdefinitions is defined
-
 - name: Start and enable clamav service
   ansible.builtin.service:
     name: "{{ item }}"
